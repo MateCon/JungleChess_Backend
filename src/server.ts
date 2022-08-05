@@ -18,10 +18,6 @@ import ioServer from "./io";
 		app.use(express.json());
 		app.use(bodyParser.json());
 
-		app.get("*", (_, res) => {
-			res.sendFile(__dirname + '/index.html');
-		});
-
 		app.listen(port, () => {
 			console.log(`Server running on http://localhost:${port}`);
 		});
