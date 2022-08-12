@@ -22,7 +22,14 @@ interface WaitQueue {
   [key: string]: User[];
 }
 
-const queue: WaitQueue = {
+interface Room {
+  id: string
+  users: User[]
+}
+
+const rooms: Room[] = [];
+
+let queue: WaitQueue = {
   ["10M"]: []
 };
 
@@ -43,5 +50,29 @@ io.on('connection', (socket: Socket) => {
       console.log(queue);
     });
 });
+
+const match = (player1: User, player2: User, io: any, rooms: Room[]) => {
+  const newRoom: Room = {
+    id: Math.floor(Math.random() * 100).toString(),
+    users: [player1, player2]
+  }
+  io.to(player1.client!).emit("joined_room", newRoom);
+  io.to(player2.client!).emit("joined_room", newRoom);
+  rooms.push(newRoom);
+}
+
+const updateQueue = (queue: WaitQueue, io: any, rooms: Room[]) => {
+  for (let mode of Object.values(queue)) {
+    while (mode.length > 1) {
+      match(mode[0], mode[1], io, rooms);
+      mode.splice(0, 2);
+    }
+  }
+}
+
+// update wait queue every two seconds
+setInterval(() => {
+  updateQueue(queue, io, rooms);
+}, 1000);
 
 export default server;
