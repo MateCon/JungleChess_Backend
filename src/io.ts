@@ -47,7 +47,16 @@ io.on('connection', (socket: Socket) => {
     socket.on('join_queue', (user: User, mode: string) => {
       user.client = socket.id;
       queue[mode].push(user);
-      console.log(queue);
+    });
+
+    socket.on('move', (user: User, roomId: number, moveData: [string, [number, number]]) => {
+      console.log(rooms);
+      console.log(user, roomId, moveData)
+      for (let other of rooms.find(room => room.id === roomId.toString())!.users) {
+        if (other.id === user.id) return;
+        io.to(other.client).emit("move", moveData);
+        console.log(other.client);
+      }
     });
 });
 
