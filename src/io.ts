@@ -52,8 +52,10 @@ io.on('connection', (socket: Socket) => {
     socket.on('move', (user: User, roomId: number, moveData: [string, [number, number]]) => {
       console.log(rooms);
       console.log(user, roomId, moveData)
+      console.log(rooms.find(room => room.id === roomId.toString())!.users)
       for (let other of rooms.find(room => room.id === roomId.toString())!.users) {
-        if (other.id === user.id) return;
+        console.log(user.id, other.id);
+        if (other.id === user.id) continue;
         io.to(other.client).emit("move", moveData);
         console.log(other.client);
       }
