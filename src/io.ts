@@ -34,14 +34,8 @@ let queue: WaitQueue = {
 };
 
 io.on('connection', (socket: Socket) => {
-    console.log('a user connected');
-
     socket.on('chat message', (msg: String) => {
       console.log('message: ' + msg);
-    });
-
-    socket.on('disconnect', () => {
-      console.log('user disconnected');
     });
 
     socket.on('join_queue', (user: User, mode: string) => {
@@ -50,15 +44,13 @@ io.on('connection', (socket: Socket) => {
     });
 
     socket.on('move', (user: User, roomId: number, moveData: [string, [number, number]]) => {
-      console.log(rooms);
-      console.log(user, roomId, moveData)
-      console.log(rooms.find(room => room.id === roomId.toString())!.users)
-      for (let other of rooms.find(room => room.id === roomId.toString())!.users) {
-        console.log(user.id, other.id);
-        if (other.id === user.id) continue;
-        io.to(other.client).emit("move", moveData);
-        console.log(other.client);
-      }
+      console.log(`${user.name} moved in room ${roomId}`)
+      const room = rooms.find(room => room.id === roomId.toString());
+      if (!room) return;
+      const users = room.users.filter(other => other.id !== user.id);
+      console.log(users, users[0].client)
+      // io.to(users[0].client).emit("move", moveData);
+      socket.to(users[0].client!).emit("move", moveData);
     });
 });
 
